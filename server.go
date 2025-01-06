@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 // Product represents the structure of a product
@@ -41,18 +42,36 @@ var nextProductID = 1
 var nextCategoryID = 1
 var nextReviewID = 1
 
+// Routes Handlers
 func main() {
-	// Routes
-	http.HandleFunc("/categories", handleCategories)
-	http.HandleFunc("/categories/", handleCategory)
-	http.HandleFunc("/products", handleProducts)
-	http.HandleFunc("/products/", handleProduct)
-	http.HandleFunc("/reviews", handleReviews)
-	http.HandleFunc("/reviews/", handleReview)
+	// Define your routes
+	http.HandleFunc("/", homeHandler)           // Handling the root route
+	http.HandleFunc("/api", apiHandler)         // Handling the '/api' route
+	http.HandleFunc("/api/categories", handleCategories)  // Handling '/api/categories'
+	http.HandleFunc("/api/categories/", handleCategory)   // Handling '/api/categories/{id}'
+	http.HandleFunc("/api/products", handleProducts)      // Handling '/api/products'
+	http.HandleFunc("/api/products/", handleProduct)      // Handling '/api/products/{id}'
+	http.HandleFunc("/api/reviews", handleReviews)        // Handling '/api/reviews'
+	http.HandleFunc("/api/reviews/", handleReview)        // Handling '/api/reviews/{id}'
 
+	// Start the server
 	port := "8080"
 	log.Printf("Server running on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+// Home Route ("/")
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	// Respond with a message for root route
+	fmt.Fprintf(w, "Welcome to the Go Server! Hit '/api' to access API routes.")
+	log.Println("Root route '/' hit")
+}
+
+// API Route ("/api")
+func apiHandler(w http.ResponseWriter, r *http.Request) {
+	// Respond with a message for the '/api' route
+	fmt.Fprintf(w, "API route is live. All API routes should be accessed under '/api/*'.")
+	log.Println("API route '/api' hit")
 }
 
 // Categories Handlers
@@ -68,7 +87,7 @@ func handleCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCategory(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/categories/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid category ID", http.StatusBadRequest)
@@ -98,7 +117,7 @@ func handleProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleProduct(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/products/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/products/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
@@ -130,7 +149,7 @@ func handleReviews(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleReview(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/reviews/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid review ID", http.StatusBadRequest)
