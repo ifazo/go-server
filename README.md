@@ -8,16 +8,14 @@ This is a simple Go server project that connects to a PostgreSQL database. It ha
 ```
 go-server/
 ├── src/
-│   ├── db/
-│   │   └── db.go          # Database connection and initialization
 │   ├── handlers/          
 │   │   ├── categories.go  # Handlers for categories (GET, POST, DELETE)
 │   │   ├── products.go    # Handlers for products (GET, POST, PUT, DELETE)
 │   │   └── reviews.go     # Handlers for reviews (GET, POST, DELETE)
 │   ├── models/
 │   │   └── models.go      # Models for Product, Category, and Review
-│   ├── data/
-│   │   └── data.go        # Data storage (simulated)
+│   ├── routes/
+│   │   └── routes.go      # Routes for Product, Category, and Review
 │   └── main.go            # Main server entry point
 ├── go.mod                 # Go module file
 ├── go.sum                 # Go sum file

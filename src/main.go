@@ -1,46 +1,45 @@
 package main
 
 import (
-	"fmt"
-	"go-server/src/handlers/categories"
-	"go-server/src/handlers/products"
-	"go-server/src/handlers/reviews"
+	"context"
 	"log"
 	"net/http"
+	"os"
+
+	"go-server/src/routes"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 )
 
-// homeHandler handles requests to the root route "/".
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome to the Go Server!")
-}
+var DB *pgx.Conn
 
-// apiHandler handles requests to the "/api" route.
-func apiHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Go server api running successfully!")
-}
+// initDB initializes the database connection.
+func initDB() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-// apiSubHandler handles requests to any sub-route under "/api/*".
-func apiSubHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	fmt.Fprintf(w, "You've reached the API sub-route: %s\n", path)
+	connStr := os.Getenv("DATABASE_URL")
+	var errConn error
+	DB, errConn = pgx.Connect(context.Background(), connStr)
+	if errConn != nil {
+		log.Fatalf("Unable to connect to database: %v\n", errConn)
+	}
+	log.Println("Database connected successfully!")
 }
 
 func main() {
-	// Categories and Products Routes (These should be defined first)
-	http.HandleFunc("/categories", categories.HandleCategories)
-	http.HandleFunc("/categories/", categories.HandleCategory)
-	http.HandleFunc("/products", products.HandleProducts)
-	http.HandleFunc("/products/", products.HandleProduct)
-	http.HandleFunc("/reviews", reviews.HandleReviews)
-	http.HandleFunc("/reviews/", reviews.HandleReview)
+	initDB()
+	defer DB.Close(context.Background())
 
-	// General API Routes (Define after specific routes)
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/api", apiHandler)
-	http.HandleFunc("/api/", apiSubHandler)
+	// Initialize routes
+	router := http.NewServeMux()
+	routes.RegisterRoutes(router, DB)
 
 	// Start the server
 	port := "8080"
 	log.Printf("Server running on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
