@@ -1,0 +1,34 @@
+# Compiled binary
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build directories
+/bin/
+/obj/
+
+# Go Modules
+/vendor/
+
+# Go sum file
+go.sum
+
+# IDE-specific files
+.idea/
+/.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# evv files
+*.env

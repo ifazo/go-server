@@ -14,14 +14,22 @@ import (
 
 var DB *pgx.Conn
 
-// initDB initializes the database connection.
 func initDB() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	env := os.Getenv("ENV")
+	if env == "" || env == "development" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("Warning: No .env file found. Using system environment variables.")
+		} else {
+			log.Println(".env file loaded successfully.")
+		}
 	}
 
 	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		log.Fatal("Error: DATABASE_URL environment variable is not set.")
+	}
+
 	var errConn error
 	DB, errConn = pgx.Connect(context.Background(), connStr)
 	if errConn != nil {
@@ -34,12 +42,14 @@ func main() {
 	initDB()
 	defer DB.Close(context.Background())
 
-	// Initialize routes
 	router := http.NewServeMux()
 	routes.RegisterRoutes(router, DB)
 
-	// Start the server
-	port := "8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" 
+	}
+
 	log.Printf("Server running on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
