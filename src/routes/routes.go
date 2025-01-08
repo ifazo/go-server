@@ -2,6 +2,7 @@ package routes
 
 import (
 	"go-server/src/handlers/categories"
+	"go-server/src/handlers/products"
 	"go-server/src/handlers/reviews"
 	"log"
 	"net/http"
@@ -12,15 +13,21 @@ import (
 // RegisterRoutes registers all the routes for the application.
 func RegisterRoutes(router *http.ServeMux, db *pgx.Conn) {
 	// Categories Routes
-	router.HandleFunc("/api/categories/", categories.HandleCategory(db))
 	router.HandleFunc("/api/categories", categories.HandleCategories(db))
-
-	// Reviews Routes
-	router.HandleFunc("/api/reviews/", func(w http.ResponseWriter, r *http.Request) {
-		reviews.HandleReview(w, r, db)
+	router.HandleFunc("/api/categories/", categories.HandleCategory(db))
+	// Products Routes
+	router.HandleFunc("/api/products", func(w http.ResponseWriter, r *http.Request) {
+		products.HandleProducts(w, r, db)
 	})
+	router.HandleFunc("/api/products/", func(w http.ResponseWriter, r *http.Request) {
+		products.HandleProduct(w, r, db)
+	})
+	// Reviews Routes
 	router.HandleFunc("/api/reviews", func(w http.ResponseWriter, r *http.Request) {
 		reviews.HandleReviews(w, r, db)
+	})
+	router.HandleFunc("/api/reviews/", func(w http.ResponseWriter, r *http.Request) {
+		reviews.HandleReview(w, r, db)
 	})
 
 	// API Route
